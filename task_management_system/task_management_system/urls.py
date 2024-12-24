@@ -23,4 +23,5 @@ urlpatterns = [
     path('tasks/update-status/<int:task_id>/', views.update_task_status, name='update_task_status'),
     path('notifications/mark-read/', views.mark_notifications_as_read, name='mark_notifications_as_read'),
     path('notifications/', views.notifications_list, name='notifications_list'),
+    path('kanban/', views.kanban_board, name='kanban_board'),
     ]

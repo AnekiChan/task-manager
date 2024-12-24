@@ -19,9 +19,9 @@ class Task(models.Model):
     end_date = models.DateTimeField()
     priority = models.IntegerField(default=1)
     description = models.TextField(default='')
-    location = models.CharField(max_length=255, default='')
-    organizer = models.CharField(max_length=100, default='')
-    is_completed = models.BooleanField(default=False)  # Можно удалить, если больше не используется
+    #location = models.CharField(max_length=255, default='')
+    #organizer = models.CharField(max_length=100, default='')
+    is_completed = models.BooleanField(default=False)
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,

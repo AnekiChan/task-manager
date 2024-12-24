@@ -60,6 +60,27 @@ def user_tasks_list(request):
     })
 
 @login_required
+def kanban_board(request):
+    tasks_planned = Task.objects.filter(status='planned')
+    tasks_in_progress = Task.objects.filter(status='in_progress')
+    tasks_completed = Task.objects.filter(status='completed')
+    return render(request, 'kanban_board.html', {
+        'tasks_planned': tasks_planned,
+        'tasks_in_progress': tasks_in_progress,
+        'tasks_completed': tasks_completed,
+    })
+
+@csrf_exempt
+def update_task_status(request, task_id):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        status = data.get('status')
+        task = Task.objects.get(id=task_id)
+        task.status = status
+        task.save()
+        return JsonResponse({'status': 'success'})
+
+@login_required
 def notifications_list(request):
     notifications = Notification.objects.select_related('task').filter(user=request.user).order_by('-created_at')
     notifications.update(is_read=True)

@@ -12,14 +12,17 @@
     <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="text-center">{{ category.name }} Задачи</h2>
-            <button id="notificationsButton" class="btn btn-light position-relative">
-                Уведомления
-                <span id="notificationsBadge"
-                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                    style="{% if notifications_count == 0 %}display: none;{% endif %}">
-                    {{ notifications_count }}
-                </span>
-            </button>
+            <div>
+                <button id="notificationsButton" class="btn btn-light position-relative">
+                    Уведомления
+                    <span id="notificationsBadge"
+                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                        style="{% if notifications_count == 0 %}display: {{0}};{% endif %}">
+                        {{ notifications_count }}
+                    </span>
+                </button>
+                <a href="{% url 'kanban_board' %}" class="btn btn-info ml-2">Канбан-доска</a>
+            </div>
         </div>
         <br />
         <div class="mb-3">
@@ -61,7 +64,6 @@
         </table>
     </div>
 
-    <!-- Modal for task details -->
     {% for task in tasks %}
     <div class="modal fade" id="taskModal_{{ task.id }}" tabindex="-1" role="dialog"
         aria-labelledby="taskModalLabel_{{ task.id }}" aria-hidden="true">
@@ -93,12 +95,6 @@
                     </p>
                     <p>
                         <strong>Описание:</strong> {{ task.description }}
-                    </p>
-                    <p>
-                        <strong>Место:</strong> {{ task.location }}
-                    </p>
-                    <p>
-                        <strong>Организатор :</strong> {{ task.organizer }}
                     </p>
                 </div>
                 <div class="modal-footer">
@@ -161,7 +157,7 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}' // CSRF токен для защиты
+                'X-CSRFToken': '{{ csrf_token }}'
             },
             body: JSON.stringify({ status: status })
         }).then(response => {
@@ -174,7 +170,6 @@
         });
     }
     document.addEventListener('DOMContentLoaded', function () {
-            
             document.getElementById('notificationsButton').addEventListener('click', function () {
             window.location.href = "{% url 'notifications_list' %}";
         });

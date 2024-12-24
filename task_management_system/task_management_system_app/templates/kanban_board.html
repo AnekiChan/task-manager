@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Канбан-доска</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .kanban-column {
+            width: 32%;
+            margin-right: 1%;
+        }
+
+        .kanban-card {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .kanban-card:hover {
+            cursor: pointer;
+            background-color: #e9ecef;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="text-center">{{ category.name }} Задачи</h2>
+            <div>
+                <button id="notificationsButton" class="btn btn-light position-relative">
+                    Уведомления
+                    <span id="notificationsBadge"
+                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                        style="{% if notifications_count == 0 %}display: {{0}};{% endif %}">
+                        {{ notifications_count }}
+                    </span>
+                </button>
+                <a href="{% url 'user_tasks_list' %}" class="btn btn-info ml-2">Таблица</a>
+            </div>
+        </div>
+        <br />
+        <div class="mb-3">
+            <a href="{% url 'logout' %}" class="btn btn-danger ml-2">Выйти</a>
+        </div>
+        <div class="d-flex justify-content-between">
+            <div class="kanban-column">
+                <h4 class="text-center">Запланировано</h4>
+                <div>
+                    {% for task in tasks_planned %}
+                    <div class="kanban-card" onclick="showTaskDetails({{ task.id }})">
+                        <h5>{{ task.name }}</h5>
+                        <p>Приоритет: {{ task.priority }}</p>
+                        <p>Срок: {{ task.start_date|date:"d.m.Y" }} - {{ task.end_date|date:"d.m.Y" }}</p>
+                    </div>
+
+                    <div class="modal fade" id="taskModal_{{ task.id }}" tabindex="-1" role="dialog"
+                        aria-labelledby="taskModalLabel_{{ task.id }}" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="taskModalLabel_{{ task.id }}">{{ task.name }}</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p><strong>Название:</strong> {{ task.name }}</p>
+                                    <p><strong>Категория:</strong> {{ task.category.name }}</p>
+                                    <p><strong>Назначение:</strong> {{ task.assigned_to.username }}</p>
+                                    <p><strong>Дата начала:</strong> {{ task.start_date }}</p>
+                                    <p><strong>Дата завершения:</strong> {{ task.end_date }}</p>
+                                    <p><strong>Приоритет:</strong> {{ task.priority }}</p>
+                                    <p><strong>Описание:</strong> {{ task.description }}</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-dismiss="modal">Закрыть</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="kanban-column">
+                <h4 class="text-center">В работе</h4>
+                <div>
+                    {% for task in tasks_in_progress %}
+                    <div class="kanban-card" onclick="showTaskDetails({{ task.id }})">
+                        <h5>{{ task.name }}</h5>
+                        <p>Приоритет: {{ task.priority }}</p>
+                        <p>Срок: {{ task.start_date|date:"d.m.Y" }} - {{ task.end_date|date:"d.m.Y" }}</p>
+                    </div>
+                    <div class="modal fade" id="taskModal_{{ task.id }}" tabindex="-1" role="dialog"
+                        aria-labelledby="taskModalLabel_{{ task.id }}" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="taskModalLabel_{{ task.id }}">{{ task.name }}</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p><strong>Название:</strong> {{ task.name }}</p>
+                                    <p><strong>Категория:</strong> {{ task.category.name }}</p>
+                                    <p><strong>Назначение:</strong> {{ task.assigned_to.username }}</p>
+                                    <p><strong>Дата начала:</strong> {{ task.start_date }}</p>
+                                    <p><strong>Дата завершения:</strong> {{ task.end_date }}</p>
+                                    <p><strong>Приоритет:</strong> {{ task.priority }}</p>
+                                    <p><strong>Описание:</strong> {{ task.description }}</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-dismiss="modal">Закрыть</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="kanban-column">
+                <h4 class="text-center">Завершено</h4>
+                <div>
+                    {% for task in tasks_completed %}
+                    <div class="kanban-card" onclick="showTaskDetails({{ task.id }})">
+                        <h5>{{ task.name }}</h5>
+                        <p>Приоритет: {{ task.priority }}</p>
+                        <p>Срок: {{ task.start_date|date:"d.m.Y" }} - {{ task.end_date|date:"d.m.Y" }}</p>
+                    </div>
+                    <div class="modal fade" id="taskModal_{{ task.id }}" tabindex="-1" role="dialog"
+                        aria-labelledby="taskModalLabel_{{ task.id }}" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="taskModalLabel_{{ task.id }}">{{ task.name }}</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p><strong>Название:</strong> {{ task.name }}</p>
+                                    <p><strong>Категория:</strong> {{ task.category.name }}</p>
+                                    <p><strong>Назначение:</strong> {{ task.assigned_to.username }}</p>
+                                    <p><strong>Дата начала:</strong> {{ task.start_date }}</p>
+                                    <p><strong>Дата завершения:</strong> {{ task.end_date }}</p>
+                                    <p><strong>Приоритет:</strong> {{ task.priority }}</p>
+                                    <p><strong>Описание:</strong> {{ task.description }}</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-dismiss="modal">Закрыть</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% for task in tasks %}
+    <div class="modal fade" id="taskModal_{{ task.id }}" tabindex="-1" role="dialog"
+        aria-labelledby="taskModalLabel_{{ task.id }}" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="taskModalLabel_{{ task.id }}">{{ task.name }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Название:</strong> {{ task.name }}</p>
+                    <p><strong>Категория:</strong> {{ task.category.name }}</p>
+                    <p><strong>Назначение:</strong> {{ task.assigned_to.username }}</p>
+                    <p><strong>Дата начала:</strong> {{ task.start_date }}</p>
+                    <p><strong>Дата завершения:</strong> {{ task.end_date }}</p>
+                    <p><strong>Приоритет:</strong> {{ task.priority }}</p>
+                    <p><strong>Описание:</strong> {{ task.description }}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <script>
+        function showTaskDetails(taskId) {
+            const modalId = `taskModal_${taskId}`;
+            $(`#${modalId}`).modal('show');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+                document.getElementById('notificationsButton').addEventListener('click', function () {
+                    window.location.href = "{% url 'notifications_list' %}";
+                });
+            });
+    </script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
