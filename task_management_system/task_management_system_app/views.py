@@ -18,12 +18,21 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 
 
+class RegistrationForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ['username', 'password1', 'password2']
+
+
+class LoginForm(AuthenticationForm):
+    class Meta:
+        model = User
+        fields = ['username', 'password']
+
 def is_admin(user):
     return user.is_superuser
 
-
 admin_required = user_passes_test(lambda user: user.is_superuser)
-
 
 def user_login(request):
     if request.method == 'POST':
@@ -31,9 +40,9 @@ def user_login(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            if user.is_superuser:  # If the user is an admin
+            if user.is_superuser:
                 return redirect('category_list')
-            else:  # If the user is a normal user
+            else:
                 return redirect('user_tasks_list')
     else:
         form = LoginForm()
@@ -65,20 +74,6 @@ def mark_notifications_as_read(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
-
-
-
-class RegistrationForm(UserCreationForm):
-    class Meta:
-        model = User
-        fields = ['username', 'password1', 'password2']
-
-
-class LoginForm(AuthenticationForm):
-    class Meta:
-        model = User
-        fields = ['username', 'password']
-
 
 def register(request):
     if request.method == 'POST':
@@ -138,8 +133,8 @@ def create_task(request):
 
         Notification.objects.create(
             user=task.assigned_to,
-            task=task,  # Сохраняем связь с задачей
-            message=f"Новая задача: {task.name}"
+            task=task,
+            message=f"Новая задача"
         )
 
         return redirect('category_list')
@@ -170,7 +165,11 @@ def update_task(request, task_id):
         else:
             task.assigned_to_id = None
         task.save()
-        Notification.objects.create(user=task.assigned_to, message=f"Задача обновлена: {task.name}")
+        Notification.objects.create(
+            user=task.assigned_to,
+            task=task,
+            message=f"Задача обновлена"
+        )
         return redirect('category_list')
     else:
         users = User.objects.all()
@@ -221,10 +220,10 @@ def delete_category(request, category_id):
     category = Category.objects.get(pk=category_id)
     if category.task_set.exists():
         messages.error(
-            request, "You cannot delete this category as it contains tasks.")
+            request, "Вы не можете удалить раздел, пока в нём есть задачи.")
     else:
         category.delete()
-        messages.success(request, "Category deleted successfully.")
+        messages.success(request, "Раздел удалён.")
     return redirect('category_list')
 
 

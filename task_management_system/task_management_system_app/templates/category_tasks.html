@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{ category.name }} tasks</title>
+    <title>{{ category.name }} задачи</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
 </head>
 
@@ -14,7 +14,7 @@
         <br />
         <div class="mb-3">
             <a href="{% url 'create_task' %}" class="btn btn-primary">Создать задачу</a> <!-- Button to add new task -->
-            <a href="{% url 'category_list' %}" class="btn btn-secondary ml-2">Вернуться в категории</a>
+            <a href="{% url 'category_list' %}" class="btn btn-secondary ml-2">Вернуться в разделы</a>
             <!-- Button to go back to categories -->
         </div>
         <table id="taskTable" class="table">
@@ -50,8 +50,13 @@
                         </select>
                     </td>                    
                     <td>
+                        <a href="{% url 'update_task' task.id %}" class="btn btn-primary btn-sm">Редактировать</a>
+                        <form method="post" action="{% url 'delete_task' task.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                        </form>
                         <button type="button" class="btn btn-info btn-sm" data-toggle="modal"
-                            data-target="#taskModal_{{ task.id }}">Details</button>
+                            data-target="#taskModal_{{ task.id }}">Подробнее</button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -59,7 +64,6 @@
         </table>
     </div>
 
-    <!-- Modal for task details -->
     {% for task in tasks %}
     <div class="modal fade" id="taskModal_{{ task.id }}" tabindex="-1" role="dialog"
         aria-labelledby="taskModalLabel_{{ task.id }}" aria-hidden="true">
@@ -75,7 +79,7 @@
                         <strong>Название:</strong> {{ task.name }}
                     </p>
                     <p>
-                        <strong>Категория:</strong> {{ task.category.name }}
+                        <strong>Раздел:</strong> {{ task.category.name }}
                     </p>
                     <p>
                         <strong>Назначение:</strong> {{ task.assigned_to.username }}
