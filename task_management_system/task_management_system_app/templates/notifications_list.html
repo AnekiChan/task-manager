@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Уведомления</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-center">Уведомления</h2>
+            <a href="{% url 'user_tasks_list' %}" class="btn btn-primary">К задачам</a>
+        </div>
+
+        {% if notifications %}
+        <ul class="list-group">
+            {% for notification in notifications %}
+            <li
+                class="list-group-item {% if not notification.is_read %}bg-danger text-white{% else %}bg-light{% endif %}">
+                <a href="#"
+                    class="text-decoration-none {% if not notification.is_read %}text-white{% else %}text-dark{% endif %}"
+                    onclick="showTaskDetails({{ notification.task.id|default:'null' }})">
+                    <div class="d-flex justify-content-between">
+                        <span>
+                            {% if notification.task %}
+                            {{ notification.task.name }}
+                            {% else %}
+                            Уведомление без связанной задачи
+                            {% endif %}
+                        </span>
+                        <span>{{ notification.created_at|date:"d.m.Y H:i" }}</span>
+                    </div>
+                    <p class="mb-0">{{ notification.message }}</p>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted">У вас пока нет уведомлений.</p>
+        {% endif %}
+    </div>
+
+    {% for notification in notifications %}
+    {% if notification.task %}
+    <div class="modal fade" id="taskModal_{{ notification.task.id }}" tabindex="-1" role="dialog"
+        aria-labelledby="taskModalLabel_{{ notification.task.id }}" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="taskModalLabel_{{ notification.task.id }}">
+                        {{ notification.task.name }}
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Название:</strong> {{ notification.task.name }}</p>
+                    <p><strong>Категория:</strong> {{ notification.task.category.name }}</p>
+                    <p><strong>Назначение:</strong> {{ notification.task.assigned_to.username }}</p>
+                    <p><strong>Дата начала:</strong> {{ notification.task.start_date }}</p>
+                    <p><strong>Дата завершения:</strong> {{ notification.task.end_date }}</p>
+                    <p><strong>Приоритет:</strong> {{ notification.task.priority }}</p>
+                    <p><strong>Описание:</strong> {{ notification.task.description }}</p>
+                    <p><strong>Место:</strong> {{ notification.task.location }}</p>
+                    <p><strong>Организатор:</strong> {{ notification.task.organizer }}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    <script>
+        function showTaskDetails(taskId) {
+            if (taskId && taskId !== 'null') {
+                const modalId = `taskModal_${taskId}`;
+                $(`#${modalId}`).modal('show');
+            } else {
+                alert('Задача, связанная с этим уведомлением, больше не существует.');
+            }
+        }
+    </script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Редактировать задачу</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Редактировать задачу</h2>
+        <br>
+        <form method="post" id="updatetaskForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="name">Название:</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ task.name }}" required />
+            </div>
+            <div class="form-group">
+                <label for="assigned_to">Назначение:</label>
+                <select class="form-control" id="assigned_to" name="assigned_to" required>
+                    <option value="">Выберите пользователя</option>
+                    {% for user in users %}
+                    <option value="{{ user.id }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="start_date">Дата начала:</label>
+                <input type="datetime-local" class="form-control" id="start_date" name="start_date"
+                    value="{{ task.start_date }}" required />
+            </div>
+            <div class="form-group">
+                <label for="end_date">Дата окончания:</label>
+                <input type="datetime-local" class="form-control" id="end_date" name="end_date"
+                    value="{{ task.end_date }}" required />
+                <small id="end_date_error" class="form-text text-danger"></small>
+            </div>
+            <div class="form-group">
+                <label for="priority">Приоритет:</label>
+                <input type="number" class="form-control" id="priority" name="priority" value="{{ task.priority }}"
+                    required />
+            </div>
+            <div class="form-group">
+                <label for="description">Описнаие:</label>
+                <textarea class="form-control" id="description" name="description"
+                    required>{{ task.description }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="location">Место:</label>
+                <input type="text" class="form-control" id="location" name="location" value="{{ task.location }}"
+                    required />
+            </div>
+            <div class="form-group">
+                <label for="organizer">Организатор:</label>
+                <input type="text" class="form-control" id="organizer" name="organizer" value="{{ task.organizer }}"
+                    required />
+            </div>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+        </form>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function validateEndDate() {
+            var startDate = new Date(document.getElementById('start_date').value)
+            var endDate = new Date(document.getElementById('end_date').value)
+            if (endDate <= startDate) {
+                document.getElementById('end_date_error').innerText = 'End date must be after start date'
+                return false
+            } else {
+                document.getElementById('end_date_error').innerText = ''
+                return true
+            }
+        }
+
+        document.getElementById('updatetaskForm').addtaskListener('submit', function (task) {
+            if (!validateEndDate()) {
+                task.prtaskDefault()
+            }
+        })
+    </script>
+</body>
+
+</html>

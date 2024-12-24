@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ category.name }} tasks</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">{{ category.name }} задачи</h2>
+        <br />
+        <div class="mb-3">
+            <a href="{% url 'create_task' %}" class="btn btn-primary">Создать задачу</a> <!-- Button to add new task -->
+            <a href="{% url 'category_list' %}" class="btn btn-secondary ml-2">Вернуться в категории</a>
+            <!-- Button to go back to categories -->
+        </div>
+        <table id="taskTable" class="table">
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Дата начала</th>
+                    <th>Дата завершения</th>
+                    <th>Приоритет</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>{{ task.name }}</td>
+                    <td>{{ task.start_date }}</td>
+                    <td>{{ task.end_date }}</td>
+                    <td>{{ task.priority }}</td>
+                    <td>
+                        <select class="form-control status-select status-{{ task.status }}"
+                                onchange="updateTaskStatus({{ task.id }}, this.value)">
+                            <option value="planned" class="status-planned" {% if task.status == 'planned' %}selected{% endif %}>
+                                Запланировано
+                            </option>
+                            <option value="in_progress" class="status-in-progress" {% if task.status == 'in_progress' %}selected{% endif %}>
+                                В работе
+                            </option>
+                            <option value="completed" class="status-completed" {% if task.status == 'completed' %}selected{% endif %}>
+                                Завершено
+                            </option>
+                        </select>
+                    </td>                    
+                    <td>
+                        <button type="button" class="btn btn-info btn-sm" data-toggle="modal"
+                            data-target="#taskModal_{{ task.id }}">Details</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal for task details -->
+    {% for task in tasks %}
+    <div class="modal fade" id="taskModal_{{ task.id }}" tabindex="-1" role="dialog"
+        aria-labelledby="taskModalLabel_{{ task.id }}" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="taskModalLabel_{{ task.id }}">{{ task.name }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        <strong>Название:</strong> {{ task.name }}
+                    </p>
+                    <p>
+                        <strong>Категория:</strong> {{ task.category.name }}
+                    </p>
+                    <p>
+                        <strong>Назначение:</strong> {{ task.assigned_to.username }}
+                    </p>
+                    <p>
+                        <strong>Дата начала:</strong> {{ task.start_date }}
+                    </p>
+                    <p>
+                        <strong>Дата завершения:</strong> {{ task.end_date }}
+                    </p>
+                    <p>
+                        <strong>Приоритет:</strong> {{ task.priority }}
+                    </p>
+                    <p>
+                        <strong>Описание:</strong> {{ task.description }}
+                    </p>
+                    <p>
+                        <strong>Место:</strong> {{ task.location }}
+                    </p>
+                    <p>
+                        <strong>Организатор:</strong> {{ task.organizer }}
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <script>
+        function sortByPriority() {
+            var table, rows, switching, i, x, y, shouldSwitch;
+            table = document.getElementById("taskTable");
+            switching = true;
+            while (switching) {
+                switching = false;
+                rows = table.getElementsByTagName("tr");
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("td")[3];
+                    y = rows[i + 1].getElementsByTagName("td")[3];
+                    if (parseInt(x.innerHTML) < parseInt(y.innerHTML)) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                }
+            }
+        }
+
+        function updateCountdownTimers() {
+            {% for task in tasks %}
+            var startDate = new Date('{{ task.start_date|date:"Y/m/d H:i:s" }}');
+            var now = new Date();
+
+            var timeDiff = startDate - now;
+
+            if (timeDiff > 0) {
+                var days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                var hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+                document.getElementById('countdown_{{ task.id }}').innerText = days + "d " + hours + "h "
+                    + minutes + "m " + seconds + "s ";
+            } else {
+                document.getElementById('countdown_{{ task.id }}').innerText = "task has started";
+            }
+            {% endfor %}
+        }
+
+        setInterval(updateCountdownTimers, 1000);
+
+        function updateTaskStatus(taskId, status) {
+        fetch(`/tasks/update-status/${taskId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ status: status })
+        }).then(response => {
+        if (response.ok) {
+            const selectElement = document.querySelector(`select[onchange="updateTaskStatus(${taskId}, this.value)"]`);
+            selectElement.className = `form-control status-select status-${status}`;
+            const statusLabel = selectElement.closest('tr').querySelector('.status-label');
+            if (statusLabel) {
+                statusLabel.className = `status-label status-${status}`;
+                statusLabel.textContent =
+                    status === 'planned' ? 'Запланировано' :
+                    status === 'in_progress' ? 'В работе' :
+                    'Завершено';
+            }
+        } else {
+            alert('Ошибка при обновлении статуса задачи.');
+        }
+        }).catch(error => {
+            console.error('Ошибка:', error);
+            alert('Не удалось обновить задачу.');
+        });
+    }
+
+    </script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

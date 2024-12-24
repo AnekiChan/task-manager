@@ -1,0 +1,40 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+.status-planned {
+    background-color: #f0f8ff;
+    color: #000;
+}
+
+.status-in-progress {
+    background-color: #fffacd;
+    color: #000;
+}
+
+.status-completed {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-label {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    display: inline-block;
+    text-align: center;
+}
+
+#notificationsButton {
+    position: relative;
+}
+
+#notificationsBadge {
+    font-size: 0.75rem;
+    padding: 5px;
+    background-color: red;
+    color: white;
+}
