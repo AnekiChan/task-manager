@@ -101,7 +101,7 @@ def add_comment(request, task_id):
                 Notification.objects.create(
                     user=task.assigned_to,
                     task=task,
-                    message=f"Новый комментарий к вашей задаче: {task.name}"
+                    content=f"Новый комментарий к вашей задаче: {task.name}"
                 )
         return redirect(request.META.get('HTTP_REFERER', '/'))
     else:
@@ -174,15 +174,13 @@ def create_task(request):
             end_date=end_date,
             priority=priority,
             description=description,
-            #location=location,
-            #organizer=organizer,
             assigned_to=assigned_to
         )
 
         Notification.objects.create(
             user=task.assigned_to,
             task=task,
-            message=f"Новая задача"
+            content=f"Новая задача"
         )
 
         return redirect('category_list')
@@ -204,9 +202,6 @@ def update_task(request, task_id):
         task.end_date = request.POST.get('end_date')
         task.priority = request.POST.get('priority')
         task.description = request.POST.get('description')
-        #task.location = request.POST.get('location')
-        #task.organizer = request.POST.get('organizer')
-        # Update assigned user
         assigned_to_id = request.POST.get('assigned_to')
         if assigned_to_id:
             task.assigned_to_id = int(assigned_to_id)
@@ -216,7 +211,7 @@ def update_task(request, task_id):
         Notification.objects.create(
             user=task.assigned_to,
             task=task,
-            message=f"Задача обновлена"
+            content=f"Задача обновлена"
         )
         return redirect('category_list')
     else:
