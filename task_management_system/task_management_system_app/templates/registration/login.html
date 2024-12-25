@@ -1,25 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <title>Вход</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/minty/bootstrap.min.css" />
 </head>
 
 <body>
     <div class="container">
         <div class="row">
             <div class="col-md-6 offset-md-3">
-                <h2 class="mt-4 mb-4">Login</h2>
+                <h2 class="mt-4 mb-4">Вход</h2>
                 <form method="post" class="mb-4">
                     {% csrf_token %}
                     {{ form.as_p }}
-                    <button type="submit" class="btn btn-primary">Login</button>
+                    <button type="submit" class="btn btn-primary">Войти</button>
                 </form>
                 <p>
-                    Don't have an account? <a href="{% url 'register' %}" class="btn btn-link">Register here</a>.
+                    Нет аккаунта? <a href="{% url 'register' %}" class="btn btn-link">Зарегистрироваться</a>
                 </p>
             </div>
         </div>

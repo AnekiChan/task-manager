@@ -24,4 +24,6 @@ urlpatterns = [
     path('notifications/mark-read/', views.mark_notifications_as_read, name='mark_notifications_as_read'),
     path('notifications/', views.notifications_list, name='notifications_list'),
     path('kanban/', views.kanban_board, name='kanban_board'),
+    path('tasks/all/', views.all_tasks_list, name='all_tasks_list'),
+    path('tasks/<int:task_id>/comment/', views.add_comment, name='add_comment'),
     ]

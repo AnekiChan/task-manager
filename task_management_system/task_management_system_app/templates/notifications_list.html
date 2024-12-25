@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Уведомления</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/minty/bootstrap.min.css" />
 </head>
 
 <body>
@@ -26,14 +26,13 @@
                     <div class="d-flex justify-content-between">
                         <span>
                             {% if notification.task %}
-                            {{ notification.task.name }}
+                            {{ notification.content }}
                             {% else %}
                             Уведомление без связанной задачи
                             {% endif %}
                         </span>
                         <span>{{ notification.created_at|date:"d.m.Y H:i" }}</span>
                     </div>
-                    <p class="mb-0">{{ notification.message }}</p>
                 </a>
             </li>
             {% endfor %}
@@ -65,8 +64,36 @@
                     <p><strong>Дата завершения:</strong> {{ notification.task.end_date }}</p>
                     <p><strong>Приоритет:</strong> {{ notification.task.priority }}</p>
                     <p><strong>Описание:</strong> {{ notification.task.description }}</p>
-                    <p><strong>Место:</strong> {{ notification.task.location }}</p>
-                    <p><strong>Организатор:</strong> {{ notification.task.organizer }}</p>
+    
+                    <hr>
+                    <h6>Комментарии</h6>
+                    <ul class="list-group mb-3">
+                        {% for comment in notification.task.comments.all %}
+                        <li class="list-group-item">
+                            <strong>{{ comment.author.username }}</strong> ({{ comment.created_at|date:"d.m.Y H:i" }}):
+                            <p>{{ comment.content }}</p>
+                        </li>
+                        {% endfor %}
+                        {% if not notification.task.comments.all %}
+                        <li class="list-group-item text-muted">Нет комментариев</li>
+                        {% endif %}
+                    </ul>
+    
+                    <hr>
+                    <h6>Добавить комментарий</h6>
+    
+                    {% if notification.task and notification.task.id %}
+                    <form method="post" action="{% url 'add_comment' notification.task.id %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <textarea name="content" class="form-control" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Добавить</button>
+                    </form>
+                    {% else %}
+                    <p class="text-muted">Добавление комментариев недоступно для этой задачи.</p>
+                    {% endif %}
+    
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
@@ -76,6 +103,7 @@
     </div>
     {% endif %}
     {% endfor %}
+
 
     <script>
         function showTaskDetails(taskId) {

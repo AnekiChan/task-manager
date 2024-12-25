@@ -7,7 +7,7 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import Category, Task, Notification
+from .models import Category, Task, Notification, Comment
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -70,6 +70,11 @@ def kanban_board(request):
         'tasks_completed': tasks_completed,
     })
 
+@login_required
+def all_tasks_list(request):
+    tasks = Task.objects.select_related('category', 'assigned_to').all()
+    return render(request, 'all_tasks_list.html', {'tasks': tasks})
+
 @csrf_exempt
 def update_task_status(request, task_id):
     if request.method == 'POST':
@@ -79,6 +84,28 @@ def update_task_status(request, task_id):
         task.status = status
         task.save()
         return JsonResponse({'status': 'success'})
+
+@login_required
+def add_comment(request, task_id):
+    if request.method == 'POST':
+        task = get_object_or_404(Task, id=task_id)
+        content = request.POST.get('content')
+        if content:
+            comment = Comment.objects.create(
+                task=task,
+                author=request.user,
+                content=content
+            )
+            # Создаем уведомление для владельца задачи
+            if task.assigned_to != request.user:
+                Notification.objects.create(
+                    user=task.assigned_to,
+                    task=task,
+                    message=f"Новый комментарий к вашей задаче: {task.name}"
+                )
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+    else:
+        return HttpResponseForbidden()
 
 @login_required
 def notifications_list(request):
@@ -133,8 +160,8 @@ def create_task(request):
         end_date = request.POST.get('end_date')
         priority = request.POST.get('priority')
         description = request.POST.get('description')
-        location = request.POST.get('location')
-        organizer = request.POST.get('organizer')
+        #location = request.POST.get('location')
+        #organizer = request.POST.get('organizer')
         assigned_to_id = request.POST.get('assigned_to')
 
         category = Category.objects.get(pk=category_id)
@@ -147,8 +174,8 @@ def create_task(request):
             end_date=end_date,
             priority=priority,
             description=description,
-            location=location,
-            organizer=organizer,
+            #location=location,
+            #organizer=organizer,
             assigned_to=assigned_to
         )
 
@@ -177,8 +204,8 @@ def update_task(request, task_id):
         task.end_date = request.POST.get('end_date')
         task.priority = request.POST.get('priority')
         task.description = request.POST.get('description')
-        task.location = request.POST.get('location')
-        task.organizer = request.POST.get('organizer')
+        #task.location = request.POST.get('location')
+        #task.organizer = request.POST.get('organizer')
         # Update assigned user
         assigned_to_id = request.POST.get('assigned_to')
         if assigned_to_id:

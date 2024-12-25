@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ category.name }} задачи</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/minty/bootstrap.min.css" />
 </head>
 
 <body>
@@ -71,31 +71,42 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="taskModalLabel_{{ task.id }}">{{ task.name }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
-                    <p>
-                        <strong>Название:</strong> {{ task.name }}
-                    </p>
-                    <p>
-                        <strong>Раздел:</strong> {{ task.category.name }}
-                    </p>
-                    <p>
-                        <strong>Назначение:</strong> {{ task.assigned_to.username }}
-                    </p>
-                    <p>
-                        <strong>Дата начала:</strong> {{ task.start_date }}
-                    </p>
-                    <p>
-                        <strong>Дата завершения:</strong> {{ task.end_date }}
-                    </p>
-                    <p>
-                        <strong>Приоритет:</strong> {{ task.priority }}
-                    </p>
-                    <p>
-                        <strong>Описание:</strong> {{ task.description }}
-                    </p>
+                    <p><strong>Название:</strong> {{ task.name }}</p>
+                    <p><strong>Категория:</strong> {{ task.category.name }}</p>
+                    <p><strong>Назначение:</strong> {{ task.assigned_to.username }}</p>
+                    <p><strong>Дата начала:</strong> {{ task.start_date }}</p>
+                    <p><strong>Дата завершения:</strong> {{ task.end_date }}</p>
+                    <p><strong>Приоритет:</strong> {{ task.priority }}</p>
+                    <p><strong>Описание:</strong> {{ task.description }}</p>
+    
+                    <hr>
+                    <h6>Комментарии</h6>
+                    <ul class="list-group mb-3">
+                        {% for comment in task.comments.all %}
+                        <li class="list-group-item">
+                            <strong>{{ comment.author.username }}</strong> ({{ comment.created_at|date:"d.m.Y H:i" }}):
+                            <p>{{ comment.content }}</p>
+                        </li>
+                        {% endfor %}
+                        {% if not task.comments.all %}
+                        <li class="list-group-item text-muted">Нет комментариев</li>
+                        {% endif %}
+                    </ul>
+    
+                    <hr>
+                    <h6>Добавить комментарий</h6>
+                    <form method="post" action="{% url 'add_comment' task.id %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <textarea name="content" class="form-control" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Добавить</button>
+                    </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Разделы</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/minty/bootstrap.min.css" />
 </head>
 
 <body>
@@ -16,7 +16,8 @@
         <br>
 
         <a href="{% url 'create_category' %}" class="btn btn-primary mb-3">Создать раздел</a>
-        <a href="{% url 'task_chart' %}" class="btn btn-info mb-3">Просмотр задач</a>
+        <a href="{% url 'create_task' %}" class="btn btn-primary mb-3">Создать задачу</a>
+        <a href="{% url 'all_tasks_list' %}" class="btn btn-info mb-3">Просмотр задач</a>
         <a href="{% url 'logout' %}" class="btn btn-danger mb-3">Выход</a>
         <table class="table">
             <thead>

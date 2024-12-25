@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Канбан-доска</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/minty/bootstrap.min.css" />
     <style>
         .kanban-column {
             width: 32%;
@@ -40,12 +40,13 @@
                         {{ notifications_count }}
                     </span>
                 </button>
-                <a href="{% url 'user_tasks_list' %}" class="btn btn-info ml-2">Таблица</a>
+                <a href="{% url 'logout' %}" class="btn btn-danger ml-2">Выйти</a>
             </div>
         </div>
         <br />
         <div class="mb-3">
-            <a href="{% url 'logout' %}" class="btn btn-danger ml-2">Выйти</a>
+            <a href="{% url 'all_tasks_list' %}" class="btn btn-info ml-2">Все задачи</a>
+            <a href="{% url 'user_tasks_list' %}" class="btn btn-info ml-2">Таблица</a>
         </div>
         <div class="d-flex justify-content-between">
             <div class="kanban-column">
@@ -76,10 +77,33 @@
                                     <p><strong>Дата завершения:</strong> {{ task.end_date }}</p>
                                     <p><strong>Приоритет:</strong> {{ task.priority }}</p>
                                     <p><strong>Описание:</strong> {{ task.description }}</p>
+                    
+                                    <hr>
+                                    <h6>Комментарии</h6>
+                                    <ul class="list-group mb-3">
+                                        {% for comment in task.comments.all %}
+                                        <li class="list-group-item">
+                                            <strong>{{ comment.author.username }}</strong> ({{ comment.created_at|date:"d.m.Y H:i" }}):
+                                            <p>{{ comment.content }}</p>
+                                        </li>
+                                        {% endfor %}
+                                        {% if not task.comments.all %}
+                                        <li class="list-group-item text-muted">Нет комментариев</li>
+                                        {% endif %}
+                                    </ul>
+                    
+                                    <hr>
+                                    <h6>Добавить комментарий</h6>
+                                    <form method="post" action="{% url 'add_comment' task.id %}">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <textarea name="content" class="form-control" rows="3" required></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Добавить</button>
+                                    </form>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-dismiss="modal">Закрыть</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
                                 </div>
                             </div>
                         </div>
@@ -114,10 +138,33 @@
                                     <p><strong>Дата завершения:</strong> {{ task.end_date }}</p>
                                     <p><strong>Приоритет:</strong> {{ task.priority }}</p>
                                     <p><strong>Описание:</strong> {{ task.description }}</p>
+                    
+                                    <hr>
+                                    <h6>Комментарии</h6>
+                                    <ul class="list-group mb-3">
+                                        {% for comment in task.comments.all %}
+                                        <li class="list-group-item">
+                                            <strong>{{ comment.author.username }}</strong> ({{ comment.created_at|date:"d.m.Y H:i" }}):
+                                            <p>{{ comment.content }}</p>
+                                        </li>
+                                        {% endfor %}
+                                        {% if not task.comments.all %}
+                                        <li class="list-group-item text-muted">Нет комментариев</li>
+                                        {% endif %}
+                                    </ul>
+                    
+                                    <hr>
+                                    <h6>Добавить комментарий</h6>
+                                    <form method="post" action="{% url 'add_comment' task.id %}">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <textarea name="content" class="form-control" rows="3" required></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Добавить</button>
+                                    </form>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-dismiss="modal">Закрыть</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
                                 </div>
                             </div>
                         </div>
@@ -152,10 +199,33 @@
                                     <p><strong>Дата завершения:</strong> {{ task.end_date }}</p>
                                     <p><strong>Приоритет:</strong> {{ task.priority }}</p>
                                     <p><strong>Описание:</strong> {{ task.description }}</p>
+                    
+                                    <hr>
+                                    <h6>Комментарии</h6>
+                                    <ul class="list-group mb-3">
+                                        {% for comment in task.comments.all %}
+                                        <li class="list-group-item">
+                                            <strong>{{ comment.author.username }}</strong> ({{ comment.created_at|date:"d.m.Y H:i" }}):
+                                            <p>{{ comment.content }}</p>
+                                        </li>
+                                        {% endfor %}
+                                        {% if not task.comments.all %}
+                                        <li class="list-group-item text-muted">Нет комментариев</li>
+                                        {% endif %}
+                                    </ul>
+                    
+                                    <hr>
+                                    <h6>Добавить комментарий</h6>
+                                    <form method="post" action="{% url 'add_comment' task.id %}">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <textarea name="content" class="form-control" rows="3" required></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Добавить</button>
+                                    </form>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-dismiss="modal">Закрыть</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
                                 </div>
                             </div>
                         </div>
